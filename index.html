@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>С Днём Рождения, Дедушка!</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0c0a18;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: block;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(12, 10, 24, 0.98);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .gift-box {
+            font-size: 120px;
+            line-height: 1;
+            margin-bottom: 30px;
+            animation: bounce 1.6s infinite ease-in-out;
+            transform-origin: bottom center;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            30% { transform: translateY(-30px) scaleY(1.05) scaleX(0.95); }
+            50% { transform: translateY(0) scale(1); }
+            70% { transform: translateY(-10px) scaleY(1.02) scaleX(0.98); }
+            80% { transform: translateY(0) scaleY(0.95) scaleX(1.05); }
+            90% { transform: translateY(0) scale(1); }
+        }
+
+        .neon-text {
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f, 0 0 40px #ff007f;
+            animation: pulse 1.5s infinite alternate;
+            max-width: 600px;
+            line-height: 1.4;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
+            100% { opacity: 1; text-shadow: 0 0 15px #ff007f, 0 0 30px #ff007f, 0 0 50px #ff007f; }
+        }
+
+        .sub-neon-text {
+            color: #00ffff;
+            font-size: 18px;
+            margin-top: 15px;
+            text-shadow: 0 0 10px #00ffff;
+            font-weight: 500;
+        }
+
+        .main-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 90%;
+            max-width: 650px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease 0.5s, transform 1.5s ease 0.5s;
+            transform: translate(-50%, -45%);
+        }
+
+        .main-container.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%);
+        }
+
+        .title {
+            font-size: 38px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, #ffe066, #f5af19, #e65c00, #f5af19, #ffe066);
+            background-size: 400% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 6s linear infinite;
+            filter: drop-shadow(0 2px 8px rgba(245, 175, 25, 0.3));
+            line-height: 1.2;
+        }
+
+        @keyframes shine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
+
+        .congratulation-text {
+            color: #f0f0f5;
+            font-size: 24px;
+            line-height: 1.6;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .congratulation-text p {
+            margin-bottom: 20px;
+        }
+
+        .congratulation-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .cakes {
+            font-size: 45px;
+            margin-top: 15px;
+            display: block;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @media (max-width: 600px) {
+            .neon-text { font-size: 20px; }
+            .sub-neon-text { font-size: 15px; }
+            .gift-box { font-size: 90px; }
+            .main-container { padding: 25px 20px; }
+            .title { font-size: 26px; margin-bottom: 15px; }
+            .congratulation-text { font-size: 19px; line-height: 1.5; }
+            .cakes { font-size: 35px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay" onclick="startBirthdayMagic()">
+        <div class="gift-box">🎁</div>
+        <div class="neon-text">ДЕДУШКА, НАЖМИ НА МЕНЯ!<br>(И включи звук погромче)</div>
+        <div class="sub-neon-text">Тебя ждёт сюрприз ✨</div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div id="mainBlock" class="main-container">
+        <h1 class="title">С Днём Рождения! 🎉</h1>
+        <div class="congratulation-text">
+            <p>Дорогой дедушка, от всей души поздравляю тебя с днём рождения! Желаю тебе счастья, здоровья и долгих лет жизни!</p>
+            <span class="cakes">🎂🎂</span>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let isInterfaceStarted = false;
+
+        const fireworkSparks = [];
+        const confettiParticles = [];
+        const backgroundStars = [];
+
+        const MAX_FIREWORK_SPARKS = 400;
+        const MAX_CONFETTI_PARTICLES = 120;
+        const MAX_STARS = 60;
+        
+        const fireworkColors = [
+            '#ff0055', '#00ffcc', '#ffcc00', '#ff00ff', '#00ff00', 
+            '#00ffff', '#ff5500', '#ff9900', '#ffffff', '#7700ff'
+        ];
+        const confettiColors = ['#ff3366', '#33ff66', '#3366ff', '#ffff33', '#ff33ff', '#33ffff', '#ffa500'];
+
+        let lastFireworkTime = 0;
+        const FIREWORK_INTERVAL = 1500;
+
+        let backgroundHue = 250;
+        let backgroundDirection = 1;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initStars();
+        });
+
+        class Star {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * height;
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = 0;
+                this.size = Math.random() * 2 + 0.5;
+                this.speed = Math.random() * 0.4 + 0.1;
+                this.alpha = Math.random() * 0.6 + 0.4;
+                this.alphaSpeed = Math.random() * 0.02 + 0.005;
+            }
+            update() {
+                this.y += this.speed;
+                this.alpha += this.alphaSpeed;
+                if (this.alpha > 1 || this.alpha < 0.3) {
+                    this.alphaSpeed = -this.alphaSpeed;
+                }
+                if (this.y > height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class FireworkSpark {
+            constructor() {
+                this.active = false;
+            }
+            spawn(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.active = true;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 3;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                
+                this.gravity = 0.08;
+                this.friction = 0.96;
+                this.alpha = 1.0;
+                this.decay = Math.random() * 0.02 + 0.015;
+                this.size = Math.random() * 3 + 1.5;
+            }
+            update() {
+                if (!this.active) return;
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+                if (this.alpha <= 0) {
+                    this.active = false;
+                }
+            }
+            draw() {
+                if (!this.active) return;
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class ConfettiParticle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * height;
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -40 - 10;
+                this.size = Math.random() * 6 + 6;
+                this.color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                this.speedY = Math.random() * 2 + 1.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.wobble = Math.random() * Math.PI;
+                this.wobbleSpeed = Math.random() * 0.04 + 0.02;
+                this.rotation = Math.random() * Math.PI;
+                this.rotationSpeed = Math.random() * 0.05 - 0.025;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX + Math.sin(this.wobble) * 0.5;
+                this.wobble += this.wobbleSpeed;
+                this.rotation += this.rotationSpeed;
+                
+                if (this.y > height + 20 || this.x < -20 || this.x > width + 20) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.fillRect(-this.size / 2, -this.size / 4, this.size, this.size / 2);
+                ctx.restore();
+            }
+        }
+
+        function initParticlePools() {
+            for (let i = 0; i < MAX_STARS; i++) {
+                backgroundStars.push(new Star());
+            }
+            for (let i = 0; i < MAX_CONFETTI_PARTICLES; i++) {
+                confettiParticles.push(new ConfettiParticle());
+            }
+            for (let i = 0; i < MAX_FIREWORK_SPARKS; i++) {
+                fireworkSparks.push(new FireworkSpark());
+            }
+        }
+
+        function initStars() {
+            backgroundStars.length = 0;
+            for (let i = 0; i < MAX_STARS; i++) {
+                backgroundStars.push(new Star());
+            }
+        }
+
+        function createFirework(targetX, targetY) {
+            const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+            const sparksCount = 60 + Math.floor(Math.random() * 30);
+            let spawned = 0;
+
+            for (let i = 0; i < fireworkSparks.length; i++) {
+                if (!fireworkSparks[i].active) {
+                    fireworkSparks[i].spawn(targetX, targetY, color);
+                    spawned++;
+                    if (spawned >= sparksCount) break;
+                }
+            }
+            
+            playFireworkSound();
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!isInterfaceStarted || e.clientY < 0) return;
+            const mainBlock = document.getElementById('mainBlock');
+            if (mainBlock.contains(e.target)) return;
+
+            createFirework(e.clientX, e.clientY);
+        });
+
+        let audioCtx = null;
+        
+        function initAudio() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+
+        function playFireworkSound() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const now = audioCtx.currentTime;
+            
+            // НОВОЕ ЗВУЧАНИЕ: Искристый праздничный взрыв-хлопушка
+            // 1. Праздничный "хлопок" (короткий щелчок на средних частотах с резким спадом)
+            const popOsc = audioCtx.createOscillator();
+            const popGain = audioCtx.createGain();
+            
+            popOsc.type = 'sawtooth';
+            popOsc.frequency.setValueAtTime(450, now);
+            popOsc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+            
+            popGain.gain.setValueAtTime(0.4, now);
+            popGain.gain.linearRampToValueAtTime(0.001, now + 0.1);
+            
+            popOsc.connect(popGain);
+            popGain.connect(audioCtx.destination);
+            popOsc.start(now);
+            popOsc.stop(now + 0.11);
+
+            // 2. Длинный, яркий, кристальный металлический шлейф искр
+            const bufferSize = audioCtx.sampleRate * 0.45;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass'; // Полосовой фильтр для эффекта шуршания блесток
+            filter.frequency.setValueAtTime(3200, now);
+            filter.frequency.exponentialRampToValueAtTime(1800, now + 0.45);
+            filter.Q.setValueAtTime(3, now);
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.25, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            
+            noiseNode.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            
+            noiseNode.start(now);
+            noiseNode.stop(now + 0.46);
+        }
+
+        function playHappyBirthdayMelody() {
+            if (!audioCtx) return;
+
+            // Энергичный темп
+            const notes = [
+                { f: 261.63, d: 0.25 }, { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.5 }, { f: 261.63, d: 0.5 }, { f: 349.23, d: 0.5 }, { f: 329.63, d: 0.8 },
+                { f: 261.63, d: 0.25 }, { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.5 }, { f: 261.63, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 349.23, d: 0.8 },
+                { f: 261.63, d: 0.25 }, { f: 261.63, d: 0.25 }, { f: 523.25, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 349.23, d: 0.5 }, { f: 329.63, d: 0.5 }, { f: 293.66, d: 0.5 },
+                { f: 466.16, d: 0.25 }, { f: 466.16, d: 0.25 }, { f: 440.00, d: 0.5 }, { f: 349.23, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 349.23, d: 1.0 }
+            ];
+
+            let currentDelay = audioCtx.currentTime + 0.2;
+
+            for (let i = 0; i < notes.length; i++) {
+                const note = notes[i];
+                scheduleTone(note.f, currentDelay, note.d - 0.03);
+                currentDelay += note.d;
+            }
+            
+            setTimeout(() => {
+                if (isInterfaceStarted) {
+                    playHappyBirthdayMelody();
+                }
+            }, (currentDelay - audioCtx.currentTime) * 1000);
+        }
+
+        function scheduleTone(freq, startTime, duration) {
+            const osc = audioCtx.createOscillator();
+            const subOsc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            subOsc.type = 'sine';
+            subOsc.frequency.setValueAtTime(freq / 2, startTime); // Суб-октава снизу
+            
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.03);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            
+            osc.connect(gainNode);
+            subOsc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start(startTime);
+            subOsc.start(startTime);
+            
+            osc.stop(startTime + duration);
+            subOsc.stop(startTime + duration);
+        }
+
+        function animationLoop(timestamp) {
+            backgroundHue += 0.05 * backgroundDirection;
+            if (backgroundHue > 290 || backgroundHue < 220) {
+                backgroundDirection = -backgroundDirection;
+            }
+            
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, `hsl(${backgroundHue}, 45%, 6%)`);
+            gradient.addColorStop(0.5, `hsl(${(backgroundHue + 40) % 360}, 50%, 8%)`);
+            gradient.addColorStop(1, `hsl(${(backgroundHue - 30) % 360}, 40%, 5%)`);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < backgroundStars.length; i++) {
+                backgroundStars[i].update();
+                backgroundStars[i].draw();
+            }
+
+            if (timestamp - lastFireworkTime > FIREWORK_INTERVAL) {
+                const randomX = Math.random() * (width * 0.8) + (width * 0.1);
+                const randomY = Math.random() * (height * 0.4) + (height * 0.15);
+                createFirework(randomX, randomY);
+                lastFireworkTime = timestamp;
+            }
+
+            for (let i = 0; i < fireworkSparks.length; i++) {
+                fireworkSparks[i].update();
+                fireworkSparks[i].draw();
+            }
+
+            for (let i = 0; i < confettiParticles.length; i++) {
+                confettiParticles[i].update();
+                confettiParticles[i].draw();
+            }
+
+            requestAnimationFrame(animationLoop);
+        }
+
+        function startBirthdayMagic() {
+            if (isInterfaceStarted) return;
+            isInterfaceStarted = true;
+
+            initAudio();
+
+            document.getElementById('overlay').classList.add('hidden');
+            document.getElementById('mainBlock').classList.add('show');
+
+            playHappyBirthdayMelody();
+            lastFireworkTime = performance.now();
+            requestAnimationFrame(animationLoop);
+        }
+
+        initParticlePools();
+    </script>
+</body>
+</html>
